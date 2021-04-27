@@ -4,11 +4,13 @@ import Form         from './components/Form';
 import Sort         from './components/Sort';
 import Search       from './components/Search';
 import List         from './components/List';
+import {connect}    from 'react-redux';
+import * as actions from './actions/index';
 class App extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            isDisplayForm: false,
+            // isDisplayForm: false,
             taskEdit: null,
             filter: {
                 name: '',
@@ -16,66 +18,21 @@ class App extends React.Component {
             }
         };
     }
-    // componentWillMount(){
-    //     if(localStorage && localStorage.getItem('tasks')){
-    //         let tasks = JSON.parse(localStorage.getItem('tasks'));
-    //         this.setState({
-    //             tasks : tasks,
-    //         });
-    //     }
-    // }
 
-    gen4 = () => {
-        return Math.random().toString(16).slice(-4);
-    }
-      
-    simpleUniqueId = (prefix) => {
-        return (prefix || '').concat([
-          this.gen4(),
-          this.gen4(),
-          this.gen4(),
-          this.gen4(),
-          this.gen4(),
-          this.gen4(),
-          this.gen4(),
-        ].join(''))
-    }
-    generateData = () => {
-        let tasks = [
-            {
-                id      : this.simpleUniqueId(),
-                name    : 'Đi học',
-                status  : true
-            },
-            {
-                id      : this.simpleUniqueId(),
-                name    : 'Đi chơi',
-                status  : true
-            },
-            {
-                id      : this.simpleUniqueId(),
-                name    : 'Đi cà phê',
-                status  : false
-            }
-        ];
-        this.setState({
-            tasks : tasks
-        });
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-    }
     
     onToggleForm = () => {
-        if (this.state.isDisplayForm && this.state.taskEdit !== null) {
-            this.setState({
-                isDisplayForm: true,
-                taskEdit: null,
-            });
-        }else{
-            this.setState({
-                isDisplayForm: !this.state.isDisplayForm,
-                taskEdit: null,
-            });
-        }
+        this.props.onToggleForm();
+        // if (this.state.isDisplayForm && this.state.taskEdit !== null) {
+        //     this.setState({
+        //         isDisplayForm: true,
+        //         taskEdit: null,
+        //     });
+        // }else{
+        //     this.setState({
+        //         isDisplayForm: !this.state.isDisplayForm,
+        //         taskEdit: null,
+        //     });
+        // }
     }   
     
     onCloseForm = () => {   
@@ -89,21 +46,6 @@ class App extends React.Component {
         });
     }
 
-    onSubmit = (data) => {
-        let { tasks } = this.state;
-        if (data.id === '') {//ADD
-            data.id = this.simpleUniqueId();
-            tasks.push(data);
-        }else{//EDIT
-            let index = this.findIndex(data.id);
-            tasks[index] = data;
-        }
-        this.setState({
-            tasks: tasks,
-            taskEdit: null,
-        });
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-    }
 
     onChangeStatus = (id) => {
         let { tasks }   = this.state;
@@ -159,10 +101,10 @@ class App extends React.Component {
         return $result;
     }
     render() {
-        let { tasks, isDisplayForm, taskEdit, filter }   = this.state; // task = this.state.tasks
+        let { tasks, taskEdit, filter }   = this.state; // task = this.state.tasks
+        let {isDisplayForm} = this.props;
         let elementForm = isDisplayForm  ? 
                                         <Form 
-                                            // onSubmit={this.onSubmit} 
                                             onCloseForm={ this.onCloseForm }
                                             taskEdit={taskEdit}
                                         /> : '';
@@ -200,11 +142,6 @@ class App extends React.Component {
                     >
                         <span className="fa fa-plus mr-10"></span>Thêm Công Việc
                     </button>
-                    <button type="button" 
-                            onClick={ this.generateData }
-                            className="btn btn-success ml-10">
-                        <span className="fa fa-plus mr-10"></span>Tạo dữ liệu mẫu
-                    </button>
                     <div className="row mt-20">
                         <div className="col-xs-6 col-sm-6 col-md-6 col-lg-6">
                             <Search />
@@ -230,4 +167,17 @@ class App extends React.Component {
     }
 }
 
-export default App;
+const mapStateToProps = state => {
+    return {
+        isDisplayForm : state.isDisplayForm,
+    };
+};
+const mapDispatchToProps = (dispatch, action) => {
+    return {
+        onToggleForm :  () => {
+            dispatch(actions.toggleForm());
+        }
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -5,7 +5,7 @@ let gen4 = () => {
     return Math.random().toString(16).slice(-4);
 }
   
-let randoomID = (prefix) => {
+let randomID = (prefix) => {
     return (prefix || '').concat([
       gen4(),
       gen4(),
@@ -22,7 +22,7 @@ let myReducer       = (state = initialState , action) => {
             return state;
         case types.ADD_TASK:
             let newTask = {
-                id : randoomID(),
+                id : randomID(),
                 name: action.task.name,
                 status: action.task.status,
             }
